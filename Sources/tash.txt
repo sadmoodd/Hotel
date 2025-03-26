@@ -1,0 +1,78 @@
+conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            firstname TEXT,
+            lastname TEXT,
+            username TEXT UNIQUE,
+            password TEXT
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+    conn1 = sqlite3.connect('admins.db')
+    cursor = conn1.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE,
+            password TEXT
+        )
+    ''')
+    conn1.commit()
+    conn1.close()
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+def get_user(username):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    user = cursor.fetchone()
+
+    conn.close()
+    return user #(id, firstname, lastname, username, password)
+
+
+def get_admin(name):
+    conn = sqlite3.connect('admins.db')
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM admins WHERE name = ?', (name,))
+    user = cursor.fetchone()
+
+    conn.close()
+    return user #(id, name, password)
+
+def hash_passwd(passwd):
+    return hashlib.sha256(passwd.encode()).hexdigest()
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+def get_data(self):
+        passwd = self.passwdField.text()
+        hash_ps = hash_passwd(passwd)
+        login = self.loginField.text()    
+        self.Login(login, hash_ps)
+        #print(login, hash_ps)
+
+    def Login(self, username, password):
+        if self.clientRB.isChecked():
+            user = get_user(username)
+            if user and user[4] == password:
+                print("Ok")
+            else:
+                print("Nof found of bad input")
+        elif self.workerRB.isChecked():
+            admin = get_admin(username)
+            if admin and admin[2] == password:
+                print("Ok admin")
+            else:
+                print("Error")
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
